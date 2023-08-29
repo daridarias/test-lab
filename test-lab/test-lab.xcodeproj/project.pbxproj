@@ -9,19 +9,27 @@
 /* Begin PBXBuildFile section */
 		4308CEA92A9CC30100DC2CD5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEA82A9CC30100DC2CD5 /* AppDelegate.swift */; };
 		4308CEAB2A9CC30100DC2CD5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEAA2A9CC30100DC2CD5 /* SceneDelegate.swift */; };
-		4308CEAD2A9CC30100DC2CD5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEAC2A9CC30100DC2CD5 /* ViewController.swift */; };
+		4308CEAD2A9CC30100DC2CD5 /* ProductsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEAC2A9CC30100DC2CD5 /* ProductsListViewController.swift */; };
 		4308CEB22A9CC30300DC2CD5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4308CEB12A9CC30300DC2CD5 /* Assets.xcassets */; };
 		4308CEB52A9CC30300DC2CD5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4308CEB32A9CC30300DC2CD5 /* LaunchScreen.storyboard */; };
+		4308CEC02A9E073F00DC2CD5 /* ProductCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEBF2A9E073F00DC2CD5 /* ProductCellModel.swift */; };
+		4308CEC22A9E0A2B00DC2CD5 /* ProductData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEC12A9E0A2B00DC2CD5 /* ProductData.swift */; };
+		4308CEC42A9E1D7700DC2CD5 /* ProductCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEC32A9E1D7700DC2CD5 /* ProductCell.swift */; };
+		4308CEC62A9E20A200DC2CD5 /* AdvertisementsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEC52A9E20A200DC2CD5 /* AdvertisementsService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		4308CEA52A9CC30100DC2CD5 /* test-lab.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "test-lab.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4308CEA82A9CC30100DC2CD5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4308CEAA2A9CC30100DC2CD5 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		4308CEAC2A9CC30100DC2CD5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		4308CEAC2A9CC30100DC2CD5 /* ProductsListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsListViewController.swift; sourceTree = "<group>"; };
 		4308CEB12A9CC30300DC2CD5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4308CEB42A9CC30300DC2CD5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4308CEB62A9CC30300DC2CD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4308CEBF2A9E073F00DC2CD5 /* ProductCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCellModel.swift; sourceTree = "<group>"; };
+		4308CEC12A9E0A2B00DC2CD5 /* ProductData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductData.swift; sourceTree = "<group>"; };
+		4308CEC32A9E1D7700DC2CD5 /* ProductCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCell.swift; sourceTree = "<group>"; };
+		4308CEC52A9E20A200DC2CD5 /* AdvertisementsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvertisementsService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,14 +62,50 @@
 		4308CEA72A9CC30100DC2CD5 /* test-lab */ = {
 			isa = PBXGroup;
 			children = (
-				4308CEA82A9CC30100DC2CD5 /* AppDelegate.swift */,
-				4308CEAA2A9CC30100DC2CD5 /* SceneDelegate.swift */,
-				4308CEAC2A9CC30100DC2CD5 /* ViewController.swift */,
+				4308CEBC2A9CCECE00DC2CD5 /* PresentationLayer */,
+				4308CEBD2A9CCEFD00DC2CD5 /* ServiceLayer */,
+				4308CEBE2A9CCF0900DC2CD5 /* CoreLayer */,
+				4308CEC72A9E2AC500DC2CD5 /* App */,
 				4308CEB12A9CC30300DC2CD5 /* Assets.xcassets */,
 				4308CEB32A9CC30300DC2CD5 /* LaunchScreen.storyboard */,
 				4308CEB62A9CC30300DC2CD5 /* Info.plist */,
 			);
 			path = "test-lab";
+			sourceTree = "<group>";
+		};
+		4308CEBC2A9CCECE00DC2CD5 /* PresentationLayer */ = {
+			isa = PBXGroup;
+			children = (
+				4308CEAC2A9CC30100DC2CD5 /* ProductsListViewController.swift */,
+				4308CEBF2A9E073F00DC2CD5 /* ProductCellModel.swift */,
+				4308CEC12A9E0A2B00DC2CD5 /* ProductData.swift */,
+				4308CEC32A9E1D7700DC2CD5 /* ProductCell.swift */,
+			);
+			path = PresentationLayer;
+			sourceTree = "<group>";
+		};
+		4308CEBD2A9CCEFD00DC2CD5 /* ServiceLayer */ = {
+			isa = PBXGroup;
+			children = (
+				4308CEC52A9E20A200DC2CD5 /* AdvertisementsService.swift */,
+			);
+			path = ServiceLayer;
+			sourceTree = "<group>";
+		};
+		4308CEBE2A9CCF0900DC2CD5 /* CoreLayer */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = CoreLayer;
+			sourceTree = "<group>";
+		};
+		4308CEC72A9E2AC500DC2CD5 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				4308CEAA2A9CC30100DC2CD5 /* SceneDelegate.swift */,
+				4308CEA82A9CC30100DC2CD5 /* AppDelegate.swift */,
+			);
+			path = App;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -134,9 +178,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4308CEAD2A9CC30100DC2CD5 /* ViewController.swift in Sources */,
+				4308CEAD2A9CC30100DC2CD5 /* ProductsListViewController.swift in Sources */,
+				4308CEC22A9E0A2B00DC2CD5 /* ProductData.swift in Sources */,
 				4308CEA92A9CC30100DC2CD5 /* AppDelegate.swift in Sources */,
+				4308CEC42A9E1D7700DC2CD5 /* ProductCell.swift in Sources */,
+				4308CEC62A9E20A200DC2CD5 /* AdvertisementsService.swift in Sources */,
 				4308CEAB2A9CC30100DC2CD5 /* SceneDelegate.swift in Sources */,
+				4308CEC02A9E073F00DC2CD5 /* ProductCellModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
