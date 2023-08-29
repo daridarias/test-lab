@@ -21,6 +21,7 @@ final class ProductCell: UICollectionViewCell {
         let image = UIImageView(frame: .zero)
         image.translatesAutoresizingMaskIntoConstraints = false
         image.image = UIImage(systemName: "paperplane")
+        image.layer.cornerRadius = 25
         
         return image
     }()

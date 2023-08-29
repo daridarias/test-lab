@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ProductsListViewController: UIViewController, UICollectionViewDelegate {
+final class ProductsListViewController: UIViewController, UICollectionViewDelegate {
 
     private enum ProductsListSection: Hashable {
         case product
@@ -36,9 +36,10 @@ class ProductsListViewController: UIViewController, UICollectionViewDelegate {
         return collectionView
     }()
     
-    var advertisementsService = AdvertisementsService()
+    var advertisementsService: AdvertisementsService
     
-    init() {
+    init(advertisementsService: AdvertisementsService) {
+        self.advertisementsService = advertisementsService
         super.init(nibName: nil, bundle: nil)
         dataSource = .init(collectionView: collectionView, cellProvider: { collectionView, indexPath, itemIdentifier in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "productCell", for: indexPath)
@@ -57,6 +58,7 @@ class ProductsListViewController: UIViewController, UICollectionViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        collectionView.delegate = self
         
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 20, left: 10, bottom: 10, right: 10)
@@ -65,6 +67,7 @@ class ProductsListViewController: UIViewController, UICollectionViewDelegate {
         collectionView.dataSource = dataSource
         collectionView.register(ProductCell.self, forCellWithReuseIdentifier: "productCell")
         
+        view.backgroundColor = .white
         view.addSubview(collectionView)
         
         NSLayoutConstraint.activate([
@@ -84,7 +87,7 @@ class ProductsListViewController: UIViewController, UICollectionViewDelegate {
         
     }
 
-    @MainActor func updateList(productData: ProductData) {
+    @MainActor func updateList(productData: ProductListData) {
         var snapshot = NSDiffableDataSourceSnapshot<ProductsListSection, ProductListCell>()
         snapshot.appendSections([ProductsListSection.product])
         
@@ -100,6 +103,19 @@ class ProductsListViewController: UIViewController, UICollectionViewDelegate {
         }
         
         dataSource?.apply(snapshot)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let itemIdentifier = dataSource?.itemIdentifier(for: indexPath) else { return }
+        
+        switch itemIdentifier {
+        case .item(let id, _):
+            let productPageVC = ProductPageViewController(advertisementsService: advertisementsService)
+            productPageVC.configure(id: id)
+            present(productPageVC, animated: true)
+        }
+        
+        
     }
 }
 

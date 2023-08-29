@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ProductData: Decodable,
+struct ProductListData: Decodable,
                     Hashable,
                     Equatable {
     let advertisements: [Advertisements]
