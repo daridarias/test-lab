@@ -71,10 +71,6 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         super.viewDidLoad()
         collectionView.delegate = self
         
-        let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
-        layout.sectionInset = UIEdgeInsets(top: 20, left: 10, bottom: 10, right: 10)
-        layout.itemSize = CGSize(width: 60, height: 60)
-        
         collectionView.dataSource = dataSource
         collectionView.register(ProductCell.self, forCellWithReuseIdentifier: "productCell")
         

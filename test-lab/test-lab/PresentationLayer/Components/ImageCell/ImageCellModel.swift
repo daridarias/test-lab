@@ -5,8 +5,8 @@
 //  Created by Дарья Сотникова on 29.08.2023.
 //
 
-import Foundation
+import UIKit
 
 struct ImageCellModel: Hashable, Equatable {
-    let imageURL: URL?
+    let image: UIImage
 }

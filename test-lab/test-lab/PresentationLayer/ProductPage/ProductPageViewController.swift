@@ -33,28 +33,32 @@ final class ProductPageViewController: UIViewController, UITableViewDelegate {
     
     let advertisementsService: AdvertisementsService
     let imageService: ImageService
+    var viewModel: ProductPageViewModel
     
     // MARK: - Lifecycle
     
     init(advertisementsService: AdvertisementsService, imageService: ImageService) {
         self.advertisementsService = advertisementsService
         self.imageService = imageService
+        self.viewModel = ProductPageViewModel()
+        
         super.init(nibName: nil, bundle: nil)
         dataSource = .init(tableView: tableView, cellProvider: { tableView, indexPath, itemIdentifier in
-            let cell = tableView.dequeueReusableCell(withIdentifier: "productPageCell", for: indexPath)
+            
             
             switch itemIdentifier {
             case let .image(model):
-                guard let castedCell = cell as? ImageCell else { break }
+                let cell = tableView.dequeueReusableCell(withIdentifier: "ImageCell", for: indexPath)
+                guard let castedCell = cell as? ImageCell else { return cell }
                 castedCell.configure(model: model)
-                if let imageURLString = model.imageURL {
-                    
-                }
+                return cell
             case let .text(model):
-                guard let castedCell = cell as? TextCell else { break }
+                let cell = tableView.dequeueReusableCell(withIdentifier: "TextCell", for: indexPath)
+                guard let castedCell = cell as? TextCell else { return cell }
                 castedCell.configure(model: model)
+                return cell
             }
-            return cell
+            
         })
     }
     
@@ -65,8 +69,8 @@ final class ProductPageViewController: UIViewController, UITableViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
-        tableView.register(ImageCell.self, forCellReuseIdentifier: "productPageCell")
-        tableView.register(TextCell.self, forCellReuseIdentifier: "productPageCell")
+        tableView.register(ImageCell.self, forCellReuseIdentifier: "ImageCell")
+        tableView.register(TextCell.self, forCellReuseIdentifier: "TextCell")
         tableView.separatorColor = .clear
         
         view.backgroundColor = .white
@@ -85,18 +89,27 @@ final class ProductPageViewController: UIViewController, UITableViewDelegate {
         Task {
             do {
                 let productData = try await advertisementsService.fetchItem(itemId: id)
-                updatePage(productData: productData)
+                viewModel.advertisements = productData
+                updatePage()
+                guard let url = productData.image_url else { return }
+                let data = try await imageService.loadImage(by: url)
+                let image = UIImage(data: data)
+                viewModel.image = image
+                updatePage(animated: false)
             } catch {
                 print(error)
             }
         }
     }
     
-    func updatePage(productData: ProductPageData) {
+
+    @MainActor func updatePage(animated: Bool = true) {
+        guard let productData = viewModel.advertisements else { return }
+        
         var snapshot = NSDiffableDataSourceSnapshot<ProductPageSection, ProductPageCell>()
         snapshot.appendSections([ProductPageSection.main])
         snapshot.appendItems([
-            .image(model: ImageCellModel(imageURL: productData.image_url)),
+            .image(model: ImageCellModel(image: viewModel.image ?? UIImage(systemName: "rectangle.on.rectangle.slash.fill")!)),
             .text(model: TextCellModel(text: productData.title, font: .systemFont(ofSize: 22), textColor: .black)),
             .text(model: TextCellModel(text: productData.price, font: .boldSystemFont(ofSize: 22), textColor: .black)),
             .text(model: TextCellModel(text: productData.location, font: .systemFont(ofSize: 20), textColor: .gray)),
@@ -106,7 +119,7 @@ final class ProductPageViewController: UIViewController, UITableViewDelegate {
             .text(model: TextCellModel(text: productData.email, font: .systemFont(ofSize: 22), textColor: .black)),
             .text(model: TextCellModel(text: productData.phone_number, font: .boldSystemFont(ofSize: 22), textColor: .black))
         ])
-        dataSource?.apply(snapshot)
+        dataSource?.apply(snapshot, animatingDifferences: animated)
     }
     
     // MARK: - UITableViewDelegate

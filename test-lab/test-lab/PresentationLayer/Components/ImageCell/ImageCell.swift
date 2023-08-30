@@ -9,24 +9,28 @@ import UIKit
 
 final class ImageCell: UITableViewCell {
     
-    lazy var image: UIImageView = {
+    lazy var vImage: UIImageView = {
         let image = UIImageView(frame: .zero)
         image.translatesAutoresizingMaskIntoConstraints = false
         image.layer.cornerRadius = 25
+        image.contentMode = .scaleAspectFit
+        image.clipsToBounds = true
         
         return image
     }()
     
+    var imageHeightContraint: NSLayoutConstraint?
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        contentView.addSubview(image)
+        contentView.addSubview(vImage)
         
         NSLayoutConstraint.activate([
-            image.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
-            image.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            image.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            image.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
+            vImage.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            vImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            contentView.trailingAnchor.constraint(equalTo: vImage.trailingAnchor, constant: 16),
+            contentView.bottomAnchor.constraint(equalTo: vImage.bottomAnchor, constant: 16)
         ])
     }
     
@@ -35,7 +39,9 @@ final class ImageCell: UITableViewCell {
     }
     
     func configure(model: ImageCellModel) {
-//        image.image = model.imageURL
-        print("got image")
+        vImage.image = model.image
+//        imageHeightContraint?.isActive = false
+        imageHeightContraint = vImage.heightAnchor.constraint(equalTo: vImage.widthAnchor, multiplier: model.image.size.height / model.image.size.width)
+        imageHeightContraint?.isActive = true
     }
 }

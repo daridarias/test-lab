@@ -24,6 +24,7 @@
 		4308CED92A9E832100DC2CD5 /* ImageCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CED82A9E832100DC2CD5 /* ImageCellModel.swift */; };
 		4308CEDB2A9F851000DC2CD5 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEDA2A9F851000DC2CD5 /* ImageService.swift */; };
 		4308CEDD2A9FB2FB00DC2CD5 /* ProductsListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEDC2A9FB2FB00DC2CD5 /* ProductsListViewModel.swift */; };
+		4308CEDF2A9FBBAC00DC2CD5 /* ProductPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEDE2A9FBBAC00DC2CD5 /* ProductPageViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		4308CED82A9E832100DC2CD5 /* ImageCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCellModel.swift; sourceTree = "<group>"; };
 		4308CEDA2A9F851000DC2CD5 /* ImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
 		4308CEDC2A9FB2FB00DC2CD5 /* ProductsListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsListViewModel.swift; sourceTree = "<group>"; };
+		4308CEDE2A9FBBAC00DC2CD5 /* ProductPageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductPageViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +141,7 @@
 			children = (
 				4308CECA2A9E761600DC2CD5 /* ProductPageViewController.swift */,
 				4308CECC2A9E795900DC2CD5 /* ProductPageData.swift */,
+				4308CEDE2A9FBBAC00DC2CD5 /* ProductPageViewModel.swift */,
 			);
 			path = ProductPage;
 			sourceTree = "<group>";
@@ -265,6 +268,7 @@
 				4308CECB2A9E761600DC2CD5 /* ProductPageViewController.swift in Sources */,
 				4308CEDB2A9F851000DC2CD5 /* ImageService.swift in Sources */,
 				4308CEDD2A9FB2FB00DC2CD5 /* ProductsListViewModel.swift in Sources */,
+				4308CEDF2A9FBBAC00DC2CD5 /* ProductPageViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
