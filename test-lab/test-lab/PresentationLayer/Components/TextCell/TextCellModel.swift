@@ -5,8 +5,10 @@
 //  Created by Дарья Сотникова on 29.08.2023.
 //
 
-import Foundation
+import UIKit
 
-struct TextCellModel {
+struct TextCellModel: Hashable, Equatable {
     let text: String?
+    let font: UIFont
+    let textColor: UIColor
 }

@@ -9,6 +9,8 @@ import UIKit
 
 final class ProductsListViewController: UIViewController, UICollectionViewDelegate {
 
+    // MARK: - Private
+    
     private enum ProductsListSection: Hashable {
         case product
     }
@@ -18,6 +20,8 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
     }
     
     private var dataSource: UICollectionViewDiffableDataSource<ProductsListSection, ProductListCell>?
+ 
+    // MARK: - Properties
     
     lazy var collectionView: UICollectionView = {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5),
@@ -36,10 +40,16 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         return collectionView
     }()
     
-    var advertisementsService: AdvertisementsService
+    let advertisementsService: AdvertisementsService
+    let imageService: ImageService
+    var viewModel: ProductsListViewModel
     
-    init(advertisementsService: AdvertisementsService) {
+    // MARK: - Lifecycle
+    init(advertisementsService: AdvertisementsService, imageService: ImageService) {
         self.advertisementsService = advertisementsService
+        self.imageService = imageService
+        self.viewModel = ProductsListViewModel(advertisements: [], images: [:])
+        
         super.init(nibName: nil, bundle: nil)
         dataSource = .init(collectionView: collectionView, cellProvider: { collectionView, indexPath, itemIdentifier in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "productCell", for: indexPath)
@@ -47,6 +57,7 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
             case let .item(_, viewModel):
                 guard let castedCell = cell as? ProductCell else { break }
                 castedCell.configure(model: viewModel)
+                
             }
             return cell
         })
@@ -79,25 +90,38 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         Task {
             do {
                 let productData = try await advertisementsService.fetchProductList()
-                updateList(productData: productData)
+                viewModel.advertisements = productData.advertisements
+                updateList()
+                for item in productData.advertisements {
+                    guard let url = item.image_url else { continue }
+                    Task {
+                        do {
+                            let data = try await imageService.loadImage(by: url)
+                            let image = UIImage(data: data)
+                            viewModel.images[url] = image
+                            updateList()
+                        } catch {
+                            print(error)
+                        }
+                    }
+                }
             } catch {
                 print(error)
             }
         }
-        
     }
 
-    @MainActor func updateList(productData: ProductListData) {
+    @MainActor func updateList() {
         var snapshot = NSDiffableDataSourceSnapshot<ProductsListSection, ProductListCell>()
         snapshot.appendSections([ProductsListSection.product])
         
-        for element in productData.advertisements {
+        for element in viewModel.advertisements {
             guard let id = element.id else { continue }
             snapshot.appendItems([.item(id: id, viewModel: .init(
                 title: element.title,
                 price: element.price,
                 location: element.location,
-                image: element.image_url,
+                image: viewModel.images[element.image_url],
                 date: element.created_date
             ))], toSection: .product)
         }
@@ -105,17 +129,17 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         dataSource?.apply(snapshot)
     }
     
+    // MARK: - UICollectionViewDelegate
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let itemIdentifier = dataSource?.itemIdentifier(for: indexPath) else { return }
         
         switch itemIdentifier {
         case .item(let id, _):
-            let productPageVC = ProductPageViewController(advertisementsService: advertisementsService)
+            let productPageVC = ProductPageViewController(advertisementsService: advertisementsService, imageService: imageService)
             productPageVC.configure(id: id)
             present(productPageVC, animated: true)
         }
-        
-        
     }
 }
 

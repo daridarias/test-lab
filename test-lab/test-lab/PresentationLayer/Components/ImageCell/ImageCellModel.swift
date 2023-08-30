@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct ImageCellModel {
+struct ImageCellModel: Hashable, Equatable {
     let imageURL: URL?
 }

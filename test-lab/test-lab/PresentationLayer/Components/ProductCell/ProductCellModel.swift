@@ -11,6 +11,6 @@ struct ProductCellModel: Hashable, Equatable {
     let title: String?
     let price: String?
     let location: String?
-    let image: URL?
+    let image: UIImage?
     let date: String?
 }

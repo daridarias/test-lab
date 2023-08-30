@@ -12,7 +12,7 @@ final class ProductCell: UICollectionViewCell {
     lazy var itemContainer: UIView = {
         let view = UIView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .gray.withAlphaComponent(0.2)
+        view.backgroundColor = .white.withAlphaComponent(0.75)
         view.layer.cornerRadius = 25
         return view
     }()
@@ -22,6 +22,8 @@ final class ProductCell: UICollectionViewCell {
         image.translatesAutoresizingMaskIntoConstraints = false
         image.image = UIImage(systemName: "paperplane")
         image.layer.cornerRadius = 25
+        image.clipsToBounds = true
+        image.contentMode = .scaleAspectFill
         
         return image
     }()
@@ -30,7 +32,7 @@ final class ProductCell: UICollectionViewCell {
         let label = UILabel(frame: .zero)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
-        label.font = .boldSystemFont(ofSize: 22)
+        label.font = .boldSystemFont(ofSize: 16)
         label.numberOfLines = 2
         return label
     }()
@@ -39,7 +41,7 @@ final class ProductCell: UICollectionViewCell {
         let label = UILabel(frame: .zero)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
-        label.font = .systemFont(ofSize: 20, weight: .heavy)
+        label.font = .systemFont(ofSize: 14, weight: .heavy)
         label.numberOfLines = 1
         return label
     }()
@@ -47,8 +49,8 @@ final class ProductCell: UICollectionViewCell {
     lazy var itemLocation: UILabel = {
         let label = UILabel(frame: .zero)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .gray
-        label.font = .systemFont(ofSize: 16)
+        label.textColor = .darkGray
+        label.font = .systemFont(ofSize: 12)
         label.numberOfLines = 1
         return label
     }()
@@ -56,8 +58,8 @@ final class ProductCell: UICollectionViewCell {
     lazy var dateLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = .gray
-        label.font = .systemFont(ofSize: 16)
+        label.textColor = .darkGray
+        label.font = .systemFont(ofSize: 12)
         label.numberOfLines = 1
         
         return label
@@ -67,24 +69,27 @@ final class ProductCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        contentView.addSubview(productImage)
         contentView.addSubview(itemContainer)
-        itemContainer.addSubview(productImage)
+        
         itemContainer.addSubview(itemTitle)
         itemContainer.addSubview(itemPrice)
         itemContainer.addSubview(itemLocation)
         itemContainer.addSubview(dateLabel)
         
         NSLayoutConstraint.activate([
-            itemContainer.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+//            itemContainer.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
             itemContainer.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 4),
             itemContainer.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant:  -4),
             itemContainer.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
+            itemContainer.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.5),
             
-            productImage.topAnchor.constraint(equalTo: itemContainer.topAnchor, constant: 8),
-            productImage.leadingAnchor.constraint(equalTo: itemContainer.leadingAnchor, constant: 8),
-            productImage.trailingAnchor.constraint(equalTo: itemContainer.trailingAnchor, constant: -8),
+            productImage.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 4),
+            productImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 4),
+            productImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -4),
+            productImage.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -4),
             
-            itemTitle.topAnchor.constraint(equalTo: productImage.bottomAnchor, constant: 8),
+//            itemTitle.topAnchor.constraint(equalTo: itemContainer.topAnchor, constant: 8),
             itemTitle.leadingAnchor.constraint(equalTo: itemContainer.leadingAnchor, constant: 8),
             itemTitle.trailingAnchor.constraint(equalTo: itemContainer.trailingAnchor, constant: -8),
             
@@ -98,7 +103,8 @@ final class ProductCell: UICollectionViewCell {
             
             dateLabel.topAnchor.constraint(equalTo: itemLocation.bottomAnchor, constant: 8),
             dateLabel.leadingAnchor.constraint(equalTo: itemContainer.leadingAnchor, constant: 8),
-            dateLabel.trailingAnchor.constraint(equalTo: itemContainer.trailingAnchor, constant: -8)
+            dateLabel.trailingAnchor.constraint(equalTo: itemContainer.trailingAnchor, constant: -8),
+            dateLabel.bottomAnchor.constraint(equalTo: itemContainer.bottomAnchor, constant: -8)
         ])
         
     }
@@ -108,7 +114,7 @@ final class ProductCell: UICollectionViewCell {
     }
     
     func configure(model: ProductCellModel) {
-//        productImage.image = model.image
+        productImage.image = model.image
         itemTitle.text = model.title
         itemPrice.text = model.price
         itemLocation.text = model.location

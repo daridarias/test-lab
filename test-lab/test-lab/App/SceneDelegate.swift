@@ -19,7 +19,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         let advertisementsService = AdvertisementsService()
-        let viewController = ProductsListViewController(advertisementsService: advertisementsService)
+        
+        let dataSessionConfiguration = URLSessionConfiguration.default
+        dataSessionConfiguration.requestCachePolicy = .returnCacheDataElseLoad
+        let dataSession = URLSession(configuration: dataSessionConfiguration)
+        let imageService = ImageService(urlSession: dataSession)
+        
+        let viewController = ProductsListViewController(advertisementsService: advertisementsService, imageService: imageService)
         window?.rootViewController = viewController
         window?.makeKeyAndVisible()
     }

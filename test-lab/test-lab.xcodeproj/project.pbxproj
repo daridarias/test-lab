@@ -22,6 +22,8 @@
 		4308CED12A9E7FD800DC2CD5 /* TextCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CED02A9E7FD800DC2CD5 /* TextCellModel.swift */; };
 		4308CED72A9E831400DC2CD5 /* ImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CED62A9E831400DC2CD5 /* ImageCell.swift */; };
 		4308CED92A9E832100DC2CD5 /* ImageCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CED82A9E832100DC2CD5 /* ImageCellModel.swift */; };
+		4308CEDB2A9F851000DC2CD5 /* ImageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEDA2A9F851000DC2CD5 /* ImageService.swift */; };
+		4308CEDD2A9FB2FB00DC2CD5 /* ProductsListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4308CEDC2A9FB2FB00DC2CD5 /* ProductsListViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +44,8 @@
 		4308CED02A9E7FD800DC2CD5 /* TextCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCellModel.swift; sourceTree = "<group>"; };
 		4308CED62A9E831400DC2CD5 /* ImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCell.swift; sourceTree = "<group>"; };
 		4308CED82A9E832100DC2CD5 /* ImageCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCellModel.swift; sourceTree = "<group>"; };
+		4308CEDA2A9F851000DC2CD5 /* ImageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageService.swift; sourceTree = "<group>"; };
+		4308CEDC2A9FB2FB00DC2CD5 /* ProductsListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsListViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				4308CEC52A9E20A200DC2CD5 /* AdvertisementsService.swift */,
+				4308CEDA2A9F851000DC2CD5 /* ImageService.swift */,
 			);
 			path = ServiceLayer;
 			sourceTree = "<group>";
@@ -124,6 +129,7 @@
 			children = (
 				4308CEAC2A9CC30100DC2CD5 /* ProductsListViewController.swift */,
 				4308CEC12A9E0A2B00DC2CD5 /* ProductListData.swift */,
+				4308CEDC2A9FB2FB00DC2CD5 /* ProductsListViewModel.swift */,
 			);
 			path = ProductList;
 			sourceTree = "<group>";
@@ -257,6 +263,8 @@
 				4308CEC02A9E073F00DC2CD5 /* ProductCellModel.swift in Sources */,
 				4308CED12A9E7FD800DC2CD5 /* TextCellModel.swift in Sources */,
 				4308CECB2A9E761600DC2CD5 /* ProductPageViewController.swift in Sources */,
+				4308CEDB2A9F851000DC2CD5 /* ImageService.swift in Sources */,
+				4308CEDD2A9FB2FB00DC2CD5 /* ProductsListViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
