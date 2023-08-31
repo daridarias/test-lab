@@ -36,9 +36,18 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         let layout = UICollectionViewCompositionalLayout(section: section)
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .clear
         
         return collectionView
+    }()
+    
+    lazy var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        indicator.hidesWhenStopped = true
+        indicator.color = .gray
+        
+        return indicator
     }()
     
     let advertisementsService: AdvertisementsService
@@ -98,13 +107,25 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
                 viewModel = .error(error)
                 updateList()
                 showErrorAlert()
-                
+
             }
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if case .loading = viewModel {
+            activityIndicator.isHidden = false
+            view.addSubview(activityIndicator)
+            
+            NSLayoutConstraint.activate([
+                activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            ])
+            activityIndicator.startAnimating()
+        }
+        
         updateList()
         obtainData()
         collectionView.delegate = self
@@ -112,7 +133,8 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         self.title = "Объявления"
         collectionView.dataSource = dataSource
         collectionView.register(ProductCell.self, forCellWithReuseIdentifier: "productCell")
-        collectionView.register(ActivityCellProductList.self, forCellWithReuseIdentifier: "ActivityCellProductList")
+        
+    
         
         view.backgroundColor = .white
         view.addSubview(collectionView)
@@ -123,6 +145,8 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        
+        
     }
 
     @MainActor func updateList() {
@@ -132,9 +156,12 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         switch viewModel {
         case .loading:
             snapshot.appendItems([.loading])
+            return
         case .error:
             snapshot.appendItems([])
         case .data(let advertisements, let images):
+            view.bringSubviewToFront(collectionView)
+            activityIndicator.stopAnimating()
             for element in advertisements {
                 guard let id = element.id else { continue }
                 snapshot.appendItems([.item(id: id, viewModel: .init(
