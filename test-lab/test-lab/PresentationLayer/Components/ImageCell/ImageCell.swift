@@ -40,7 +40,6 @@ final class ImageCell: UITableViewCell {
     
     func configure(model: ImageCellModel) {
         vImage.image = model.image
-//        imageHeightContraint?.isActive = false
         imageHeightContraint = vImage.heightAnchor.constraint(equalTo: vImage.widthAnchor, multiplier: model.image.size.height / model.image.size.width)
         imageHeightContraint?.isActive = true
     }

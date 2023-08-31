@@ -26,7 +26,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let imageService = ImageService(urlSession: dataSession)
         
         let viewController = ProductsListViewController(advertisementsService: advertisementsService, imageService: imageService)
-        window?.rootViewController = viewController
+        let navigationController = UINavigationController(rootViewController: viewController)
+        window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
     }
 

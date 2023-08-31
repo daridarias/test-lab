@@ -7,7 +7,8 @@
 
 import UIKit
 
-struct ProductPageViewModel {
-    var advertisements: ProductPageData?
-    var image: UIImage?
+enum ProductPageViewModel {
+    case loading
+    case error(Error)
+    case data(advertisements: ProductPageData?, image: UIImage?)
 }

@@ -7,7 +7,8 @@
 
 import UIKit
 
-struct ProductsListViewModel {
-    var advertisements: [Advertisements]
-    var images: [URL?: UIImage]
+enum ProductsListViewModel {
+    case loading
+    case error(Error)
+    case data(advertisements: [Advertisements], images: [URL?: UIImage])
 }

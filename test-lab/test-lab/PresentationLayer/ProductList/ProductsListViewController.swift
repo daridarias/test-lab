@@ -17,6 +17,7 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
     
     private enum ProductListCell: Hashable {
         case item(id: String, viewModel: ProductCellModel)
+        case loading
     }
     
     private var dataSource: UICollectionViewDiffableDataSource<ProductsListSection, ProductListCell>?
@@ -48,18 +49,23 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
     init(advertisementsService: AdvertisementsService, imageService: ImageService) {
         self.advertisementsService = advertisementsService
         self.imageService = imageService
-        self.viewModel = ProductsListViewModel(advertisements: [], images: [:])
+        self.viewModel = .loading
         
         super.init(nibName: nil, bundle: nil)
         dataSource = .init(collectionView: collectionView, cellProvider: { collectionView, indexPath, itemIdentifier in
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "productCell", for: indexPath)
+            
             switch itemIdentifier {
             case let .item(_, viewModel):
-                guard let castedCell = cell as? ProductCell else { break }
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "productCell", for: indexPath)
+                guard let castedCell = cell as? ProductCell else { return cell }
                 castedCell.configure(model: viewModel)
+                return cell
                 
+            case .loading:
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ActivityCellProductList", for: indexPath)
+                return cell
             }
-            return cell
+            
         })
     }
     
@@ -67,12 +73,46 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         fatalError("init(coder:) has not been implemented")
     }
     
+    fileprivate func obtainData() {
+        Task {
+            do {
+                let productData = try await advertisementsService.fetchProductList()
+                viewModel = .data(advertisements: productData.advertisements, images: [:])
+                updateList()
+                var images: [URL?: UIImage] = [:]
+                for item in productData.advertisements {
+                    guard let url = item.image_url else { continue }
+                    Task {
+                        do {
+                            let data = try await imageService.loadImage(by: url)
+                            let image = UIImage(data: data)
+                            images[url] = image
+                            viewModel = .data(advertisements: productData.advertisements, images: images)
+                            updateList()
+                        } catch {
+                            print(error)
+                        }
+                    }
+                }
+            } catch {
+                viewModel = .error(error)
+                updateList()
+                showErrorAlert()
+                
+            }
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        updateList()
+        obtainData()
         collectionView.delegate = self
         
+        self.title = "Объявления"
         collectionView.dataSource = dataSource
         collectionView.register(ProductCell.self, forCellWithReuseIdentifier: "productCell")
+        collectionView.register(ActivityCellProductList.self, forCellWithReuseIdentifier: "ActivityCellProductList")
         
         view.backgroundColor = .white
         view.addSubview(collectionView)
@@ -81,48 +121,44 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
-        Task {
-            do {
-                let productData = try await advertisementsService.fetchProductList()
-                viewModel.advertisements = productData.advertisements
-                updateList()
-                for item in productData.advertisements {
-                    guard let url = item.image_url else { continue }
-                    Task {
-                        do {
-                            let data = try await imageService.loadImage(by: url)
-                            let image = UIImage(data: data)
-                            viewModel.images[url] = image
-                            updateList()
-                        } catch {
-                            print(error)
-                        }
-                    }
-                }
-            } catch {
-                print(error)
-            }
-        }
     }
 
     @MainActor func updateList() {
         var snapshot = NSDiffableDataSourceSnapshot<ProductsListSection, ProductListCell>()
         snapshot.appendSections([ProductsListSection.product])
         
-        for element in viewModel.advertisements {
-            guard let id = element.id else { continue }
-            snapshot.appendItems([.item(id: id, viewModel: .init(
-                title: element.title,
-                price: element.price,
-                location: element.location,
-                image: viewModel.images[element.image_url],
-                date: element.created_date
-            ))], toSection: .product)
+        switch viewModel {
+        case .loading:
+            snapshot.appendItems([.loading])
+        case .error:
+            snapshot.appendItems([])
+        case .data(let advertisements, let images):
+            for element in advertisements {
+                guard let id = element.id else { continue }
+                snapshot.appendItems([.item(id: id, viewModel: .init(
+                    title: element.title,
+                    price: element.price,
+                    location: element.location,
+                    image: images[element.image_url],
+                    date: element.created_date
+                ))], toSection: .product)
+            }
         }
         
         dataSource?.apply(snapshot)
+    }
+    
+    func showErrorAlert() {
+        let alert = UIAlertController(title: "Error", message: "Something wrong", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Retry", style: .default, handler: { [weak self] _ in
+            self?.viewModel = .loading
+            self?.updateList()
+            self?.obtainData()
+        }))
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        self.present(alert, animated: true, completion: nil)
     }
     
     // MARK: - UICollectionViewDelegate
@@ -134,7 +170,9 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         case .item(let id, _):
             let productPageVC = ProductPageViewController(advertisementsService: advertisementsService, imageService: imageService)
             productPageVC.configure(id: id)
-            present(productPageVC, animated: true)
+            navigationController?.pushViewController(productPageVC, animated: true)
+        case .loading:
+            return
         }
     }
 }
