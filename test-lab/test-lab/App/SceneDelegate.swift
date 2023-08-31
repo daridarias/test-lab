@@ -10,6 +10,7 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    var coordinator: Coordinator?
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -25,8 +26,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let dataSession = URLSession(configuration: dataSessionConfiguration)
         let imageService = ImageService(urlSession: dataSession)
         
-        let viewController = ProductsListViewController(advertisementsService: advertisementsService, imageService: imageService)
-        let navigationController = UINavigationController(rootViewController: viewController)
+        let navigationController = UINavigationController()
+        let vcFactory = DefaultVCFactory(advertisementsService: advertisementsService, imageService: imageService)
+        
+        coordinator = Coordinator(router: navigationController, vcFactory: vcFactory)
+        coordinator?.start()
+        
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
     }

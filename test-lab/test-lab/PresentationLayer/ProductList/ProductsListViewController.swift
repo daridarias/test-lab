@@ -7,6 +7,18 @@
 
 import UIKit
 
+protocol ProductListViewInput: AnyObject {
+    var output: ProductListViewOutput? { get set }
+    
+    func updateView(viewModel: ProductsListViewModel)
+}
+
+protocol ProductListViewOutput: AnyObject {
+    func productListViewDidLoad(_ input: ProductListViewInput)
+    func productListViewDidTapRetryLoad(_ input: ProductListViewInput)
+    func productListView(_ input: ProductListViewInput, didTapOnCellWithId: String)
+}
+
 final class ProductsListViewController: UIViewController, UICollectionViewDelegate {
 
     // MARK: - Private
@@ -50,16 +62,10 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         return indicator
     }()
     
-    let advertisementsService: AdvertisementsService
-    let imageService: ImageService
-    var viewModel: ProductsListViewModel
+    var output: ProductListViewOutput?
     
     // MARK: - Lifecycle
-    init(advertisementsService: AdvertisementsService, imageService: ImageService) {
-        self.advertisementsService = advertisementsService
-        self.imageService = imageService
-        self.viewModel = .loading
-        
+    init() {
         super.init(nibName: nil, bundle: nil)
         dataSource = .init(collectionView: collectionView, cellProvider: { collectionView, indexPath, itemIdentifier in
             
@@ -82,59 +88,13 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         fatalError("init(coder:) has not been implemented")
     }
     
-    fileprivate func obtainData() {
-        Task {
-            do {
-                let productData = try await advertisementsService.fetchProductList()
-                viewModel = .data(advertisements: productData.advertisements, images: [:])
-                updateList()
-                var images: [URL?: UIImage] = [:]
-                for item in productData.advertisements {
-                    guard let url = item.image_url else { continue }
-                    Task {
-                        do {
-                            let data = try await imageService.loadImage(by: url)
-                            let image = UIImage(data: data)
-                            images[url] = image
-                            viewModel = .data(advertisements: productData.advertisements, images: images)
-                            updateList()
-                        } catch {
-                            print(error)
-                        }
-                    }
-                }
-            } catch {
-                viewModel = .error(error)
-                updateList()
-                showErrorAlert()
-
-            }
-        }
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        if case .loading = viewModel {
-            activityIndicator.isHidden = false
-            view.addSubview(activityIndicator)
-            
-            NSLayoutConstraint.activate([
-                activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-            ])
-            activityIndicator.startAnimating()
-        }
-        
-        updateList()
-        obtainData()
         collectionView.delegate = self
         
         self.title = "Объявления"
         collectionView.dataSource = dataSource
         collectionView.register(ProductCell.self, forCellWithReuseIdentifier: "productCell")
-        
-    
         
         view.backgroundColor = .white
         view.addSubview(collectionView)
@@ -146,10 +106,10 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
         
-        
+        output?.productListViewDidLoad(self)
     }
 
-    @MainActor func updateList() {
+    @MainActor func updateList(viewModel: ProductsListViewModel) {
         var snapshot = NSDiffableDataSourceSnapshot<ProductsListSection, ProductListCell>()
         snapshot.appendSections([ProductsListSection.product])
         
@@ -177,17 +137,6 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         dataSource?.apply(snapshot)
     }
     
-    func showErrorAlert() {
-        let alert = UIAlertController(title: "Error", message: "Something wrong", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Retry", style: .default, handler: { [weak self] _ in
-            self?.viewModel = .loading
-            self?.updateList()
-            self?.obtainData()
-        }))
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        self.present(alert, animated: true, completion: nil)
-    }
-    
     // MARK: - UICollectionViewDelegate
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -195,12 +144,38 @@ final class ProductsListViewController: UIViewController, UICollectionViewDelega
         
         switch itemIdentifier {
         case .item(let id, _):
-            let productPageVC = ProductPageViewController(advertisementsService: advertisementsService, imageService: imageService)
-            productPageVC.configure(id: id)
-            navigationController?.pushViewController(productPageVC, animated: true)
+            output?.productListView(self, didTapOnCellWithId: id)
         case .loading:
             return
         }
     }
 }
 
+extension ProductsListViewController: ProductListViewInput {
+    func updateView(viewModel: ProductsListViewModel) {
+        switch viewModel {
+        case .loading:
+            activityIndicator.isHidden = false
+            view.addSubview(activityIndicator)
+            
+            NSLayoutConstraint.activate([
+                activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            ])
+            activityIndicator.startAnimating()
+        case .error:
+            let alert = UIAlertController(title: "Error", message: "Something wrong", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Retry", style: .default, handler: { [weak self] _ in
+                guard let self else { return }
+                self.output?.productListViewDidTapRetryLoad(self)
+            }))
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            self.present(alert, animated: true, completion: nil)
+            
+        case .data:
+            break
+        }
+        
+        updateList(viewModel: viewModel)
+    }
+}

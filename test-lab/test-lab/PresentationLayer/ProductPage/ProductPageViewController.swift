@@ -7,6 +7,17 @@
 
 import UIKit
 
+protocol ProductPageViewInput: AnyObject {
+    var output: ProductPageViewOutput? { get set }
+    
+    func updateView(viewModel: ProductPageViewModel, animated: Bool)
+}
+
+protocol ProductPageViewOutput: AnyObject {
+    func productPageViewDidLoad(_ input: ProductPageViewInput)
+    func productPageViewDidTapRetryLoad(_ input: ProductPageViewInput)
+}
+
 final class ProductPageViewController: UIViewController, UITableViewDelegate {
     
 //MARK: - Private
@@ -32,17 +43,11 @@ final class ProductPageViewController: UIViewController, UITableViewDelegate {
         return tableView
     }()
     
-    let advertisementsService: AdvertisementsService
-    let imageService: ImageService
-    var viewModel: ProductPageViewModel
+    var output: ProductPageViewOutput?
     
     // MARK: - Lifecycle
     
-    init(advertisementsService: AdvertisementsService, imageService: ImageService) {
-        self.advertisementsService = advertisementsService
-        self.imageService = imageService
-        self.viewModel = .loading
-        
+    init() {
         super.init(nibName: nil, bundle: nil)
         dataSource = .init(tableView: tableView, cellProvider: { tableView, indexPath, itemIdentifier in
             
@@ -80,7 +85,6 @@ final class ProductPageViewController: UIViewController, UITableViewDelegate {
         tableView.register(ActivityCellProductPage.self, forCellReuseIdentifier: "ActivityCell")
         
         tableView.separatorColor = .clear
-        updatePage()
         
         view.backgroundColor = .white
         view.addSubview(tableView)
@@ -91,41 +95,30 @@ final class ProductPageViewController: UIViewController, UITableViewDelegate {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        
+        output?.productPageViewDidLoad(self)
     }
  
     
-    func showErrorAlert() {
+    @MainActor func showErrorAlert() {
         let alert = UIAlertController(title: "Error", message: "Something wrong", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Retry", style: .default, handler: { [weak self] action in
-            self?.viewModel = .loading
+            guard let self else { return }
+            self.output?.productPageViewDidTapRetryLoad(self)
         }))
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         self.present(alert, animated: true, completion: nil)
     }
     
-    func configure(id: String) {
-        Task {
-            do {
-                let productData = try await advertisementsService.fetchItem(itemId: id)
-                viewModel = .data(advertisements: productData, image: nil)
-                updatePage()
-                guard let url = productData.image_url else { return }
-                let data = try await imageService.loadImage(by: url)
-                let image = UIImage(data: data)
-                viewModel = .data(advertisements: productData, image: image)
-                updatePage(animated: false)
-            } catch {
-                viewModel = .error(error)
-                updatePage()
-                
-                showErrorAlert()
-                
-            }
-        }
-    }
+    // MARK: - UITableViewDelegate
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        UITableView.automaticDimension
+    }
+}
 
-    @MainActor func updatePage(animated: Bool = true) {
+extension ProductPageViewController: ProductPageViewInput {
+    @MainActor func updateView(viewModel: ProductPageViewModel, animated: Bool) {
         var snapshot = NSDiffableDataSourceSnapshot<ProductPageSection, ProductPageCell>()
         snapshot.appendSections([ProductPageSection.main])
         
@@ -134,6 +127,7 @@ final class ProductPageViewController: UIViewController, UITableViewDelegate {
             snapshot.appendItems([.loading])
         case .error:
             snapshot.appendItems([])
+            showErrorAlert()
         case .data(let advertisements, let image):
             guard let productData = advertisements else { return }
             
@@ -154,11 +148,5 @@ final class ProductPageViewController: UIViewController, UITableViewDelegate {
         }
        
         dataSource?.apply(snapshot, animatingDifferences: animated)
-    }
-    
-    // MARK: - UITableViewDelegate
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        UITableView.automaticDimension
     }
 }

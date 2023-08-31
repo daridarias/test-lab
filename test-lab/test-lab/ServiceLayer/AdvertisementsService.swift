@@ -27,7 +27,7 @@ final class AdvertisementsService {
         let urlString = "\(urlStringItem)\(itemId).json"
         guard let url = URL(string: urlString) else { throw Errors.brokenURL }
         
-        let (data, _) = try await URLSession(configuration: .default).data(for: URLRequest(url: url))
+        let (data, _) = try await URLSession(configuration: .default).data(for: URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData))
         let decoder = JSONDecoder()
         let decodedData = try decoder.decode(ProductPageData.self, from: data)
         return decodedData
